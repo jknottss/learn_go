@@ -80,6 +80,7 @@ func (b *bucket) delete(k string) {
 	for prevNode.next != nil {
 		if prevNode.next.key == k {
 			prevNode.next = prevNode.next.next
+            return
 		}
 		prevNode = prevNode.next
 	}
