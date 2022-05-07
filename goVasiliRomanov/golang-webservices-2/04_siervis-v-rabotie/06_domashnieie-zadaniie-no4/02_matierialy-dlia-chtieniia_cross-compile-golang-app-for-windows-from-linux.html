@@ -1,0 +1,572 @@
+<!doctype html>
+<html  lang="en_us" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/Article">
+<head>
+	<meta charset="UTF-8">
+	<title>HOWTO: Cross-compile a Go app for Windows from Linux :: LimitlessFX</title>
+	<meta name="description" content="I recently needed to test some app on windows, and while cross-compiling in Go is straight-forward, the app had some C code and apparently on Arch Linux...">
+	<link href="//www.google-analytics.com" rel="dns-prefetch">
+
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+	<link rel='dns-prefetch' href='//s.w.org' />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.limitlessfx.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.4.10"}};
+			/*! This file is auto-generated */
+			!function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode;p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0);e=i.toDataURL();return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([55357,56424,55356,57342,8205,55358,56605,8205,55357,56424,55356,57340],[55357,56424,55356,57342,8203,55358,56605,8203,55357,56424,55356,57340])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(n=t.source||{}).concatemoji?c(n.concatemoji):n.wpemoji&&n.twemoji&&(c(n.twemoji),c(n.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+	<link rel='stylesheet' id='bootstrap-css'  href='https://www.limitlessfx.com/wp-content/themes/bootstrap-blank/css/bootstrap.min.css?ver=3.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-blank-css'  href='https://www.limitlessfx.com/wp-content/themes/bootstrap-blank/main.scss.css?ver=0.1' type='text/css' media='all' />
+<link rel='stylesheet' id='crayon-theme-monokai-css'  href='https://www.limitlessfx.com/wp-content/plugins/crayon-syntax-highlighter/themes/monokai/monokai.css?ver=_2.7.2_beta' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-block-library-css'  href='https://www.limitlessfx.com/wp-includes/css/dist/block-library/style.min.css?ver=5.4.10' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-github-css'  href='https://www.limitlessfx.com/wp-content/plugins/wp-github/css/wp-github.css?ver=5.4.10' type='text/css' media='all' />
+<link rel='https://api.w.org/' href='https://www.limitlessfx.com/wp-json/' />
+<link rel="alternate" type="application/json+oembed" href="https://www.limitlessfx.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.limitlessfx.com%2Fcross-compile-golang-app-for-windows-from-linux.html" />
+<link rel="alternate" type="text/xml+oembed" href="https://www.limitlessfx.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.limitlessfx.com%2Fcross-compile-golang-app-for-windows-from-linux.html&#038;format=xml" />
+<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>	<link rel="author" href="https://plus.google.com/+AhmedWaheed10F1/posts">
+	<meta itemprop="name" content="HOWTO: Cross-compile a Go app for Windows from Linux">
+	<meta itemprop="description" content="I recently needed to test some app on windows, and while cross-compiling in Go is straight-forward, the app had some C code and apparently on Arch Linux the mingw64-gcc package is misconfigured.After some head scratching I figured out a workaround until...">
+	<meta property="og:locale" content="en_us">
+	<meta property="og:site_name" content="LimitlessFX">
+	<meta property="og:url" content="https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="HOWTO: Cross-compile a Go app for Windows from Linux">
+	<meta property="og:description" content="I recently needed to test some app on windows, and while cross-compiling in Go is straight-forward, the app had some C code and apparently on Arch Linux the mingw64-gcc package is misconfigured.After some head scratching I figured out a workaround until...">
+	<meta property="article:publisher" content="https://plus.google.com/+AhmedWaheed10F1/posts">
+	<meta property="article:published_time" content="2014-10-09T19:32:18+02:00">
+	<meta property="article:modified_time" content="2014-10-09T19:34:05+02:00">
+	<meta property="article:tag" content="arch-linux">
+	<meta property="article:tag" content="crosscompile">
+	<meta property="article:tag" content="howto">
+	<meta property="article:tag" content="linux">
+	<meta property="article:tag" content="windows">
+	<meta property="article:tag" content="workaround">
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:site" content="@10F1">
+	<meta name="twitter:creator" content="@10F1">
+	<meta name="twitter:title" content="HOWTO: Cross-compile a Go app for Windows from Linux">
+	<meta name="twitter:description" content="I recently needed to test some app on windows, and while cross-compiling in Go is straight-forward, the app had some C code and apparently on Arch Linux the mingw64-gcc package is misconfigured.After some head scratching I figured out a workaround until...">
+</head>
+<body class="single">
+<div class="skip-link screen-reader-text">
+	<a href="#content" title="Skip to content">
+		Skip to content</a>
+</div>
+	<div class="container">
+		<!--[if lt IE 9]>
+		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+		<![endif]-->
+		<header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<span class="h1">
+						<a href="https://www.limitlessfx.com" title="LimitlessFX" rel="home"
+						   class="navbar-brand" itemprop="name">LimitlessFX</a>
+					<small>  HOWTO: Cross-compile a Go app for Windows from Linux</small>
+					</span>
+				</div>
+				<nav class="navbar-collapse collapse" role="navigation">
+					<ul class="nav navbar-nav navbar-right" role="menubar">
+						<li role="menuitem"><a href="https://www.limitlessfx.com/cat/linux">Linux</a></li>
+						<li class="dropdown" role="menuitem">
+							<a href="https://www.limitlessfx.com/cat/code" class="dropdown-toggle" data-toggle="dropdown">Code<i class="caret"></i></a>
+							<ul class="dropdown-menu" role="menu">
+								<li role="menuitem"><a href="https://www.limitlessfx.com/cat/code/php">PHP</a></li>
+								<li role="menuitem"><a href="https://www.limitlessfx.com/cat/code/golang">Go</a></li>
+							</ul>
+						</li>
+						<li class="dropdown" role="menuitem">
+							<a href="https://www.limitlessfx.com/cat/gaming" class="dropdown-toggle" data-toggle="dropdown">Gaming<i class="caret"></i></a>
+							<ul class="dropdown-menu" role="menu">
+								<li role="menuitem"><a href="https://www.limitlessfx.com/cat/gaming/world-of-warcraft">World Of Warcraft</a></li>
+								<li role="menuitem"><a href="https://www.limitlessfx.com/cat/gaming/guild-wars-2">Guild Wars 2</a></li>
+							</ul>
+						</li>
+						<li role="menuitem"><a title="Miscellaneous" href="https://www.limitlessfx.com/cat/miscellaneous">Misc</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Share <i
+									class="caret"></i></a>
+							<ul class="dropdown-menu social-icons row" style="overflow:hidden;" role="menu">
+								<li><a href="https://www.facebook.com/sharer.php?u=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html" title="Share this page on Facebook!" rel="external" target="_blank"><i id="facebook"></i>Facebook</a></li>
+<li><a href="https://twitter.com/share?url=text=HOWTO: Cross-compile a Go app for Windows from Linux" title="Share this page on Twitter!" rel="external" target="_blank"><i id="twitter"></i>Twitter</a></li>
+<li><a href="https://plus.google.com/share?url=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html" title="Share this page on Google!" rel="external" target="_blank"><i id="google"></i>Google</a></li>
+<li><a href="http://www.digg.com/submit?url=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html" title="Share this page on Digg!" rel="external" target="_blank"><i id="digg"></i>Digg</a></li>
+<li><a href="http://www.reddit.com/submit?url=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html&title=HOWTO: Cross-compile a Go app for Windows from Linux" title="Share this page on Reddit!" rel="external" target="_blank"><i id="reddit"></i>Reddit</a></li>
+<li><a href="https://www.linkedin.com/shareArticle?mini=true&url=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html" title="Share this page on LinkedIn!" rel="external" target="_blank"><i id="linkedin"></i>LinkedIn</a></li>
+<li><a href="http://www.stumbleupon.com/submit?url=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html&title=HOWTO: Cross-compile a Go app for Windows from Linux" title="Share this page on StumbleUpon!" rel="external" target="_blank"><i id="stumbleupon"></i>StumbleUpon</a></li>
+<li><a href="mailto:?Subject=Checkhis                   0ut:0&Body=https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html" title="Share this page on Email!" rel="external" target="_blank"><i id="email"></i>Email</a></li>							</ul>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+		<div class="row">
+	<main role="main" id="contents" class="col-xs-12 col-md-9">
+		<!-- section -->
+		<section>
+			
+	<article class="post-161 post type-post status-publish format-standard hentry category-golang tag-arch-linux-2 tag-crosscompile tag-howto tag-linux-2 tag-windows tag-workaround">
+
+		<header class="entry-header">
+			<div class="entry-title h1">HOWTO: Cross-compile a Go app for Windows from Linux</div>				<div class="entry-meta">
+									<ol class="breadcrumb">
+					<li itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://www.limitlessfx.com" title="LimitlessFX" rel="home" itemprop="url"><b itemprop="title">Home</b></a></li>
+					<li itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://www.limitlessfx.com/cat/code/golang" title="Go" rel="category" itemprop="url"><b itemprop="title">Go</b></a></li>
+					<li class="active">HOWTO: Cross-compile a Go app for Windows from Linux</li>
+</ol>				</div>
+			
+			<div class="entry-meta">
+				<span class="posted-on"><i class="glyphicon glyphicon-calendar"></i><span title="Posted On"><time class="entry-date" datetime="2014-10-09T19:32:18+02:00">2014/10/09</time></span> <i class="glyphicon glyphicon-calendar"></i><span class="updated-on" title="Updated On"><time class="updated" datetime="2014-10-09T19:34:05+02:00">2014/10/09</time></span></span><span class="byline" title="Written By"><i class="glyphicon glyphicon-user"></i><span class="author vcard"><a class="url fn n" href="https://www.limitlessfx.com/author/oneofone">OneOfOne</a></span></span><span class="comments-link"><i class="glyphicon glyphicon-comment"></i><a href="https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html#comments">3 Comments</a></span>			</div><!-- .entry-meta -->
+		</header><!-- .entry-header -->
+
+
+		<div class="entry-content">
+			<p>I recently needed to test some app on windows, and while cross-compiling in Go is straight-forward, the app had some C code and apparently on Arch Linux the mingw64-gcc package is misconfigured.</p>
+<p>After some head scratching I figured out a workaround until the package is fixed (task <a href="https://bugs.archlinux.org/task/42313" title="FS#42313 - community/mingw-w64-gcc is compiled without --disable-libssp" target="_blank">#4313</a>), you have to link your Go code against 
+			<span id="crayon-623c1c3f96676702914046" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">ssp</span></span></span>.</p>
+<p><em><strong>note</strong></em> this bug is specific to Arch Linux, however other distros might build the toolchain in the same manner.</em></p>
+<h2>Building the toolchain:</h2>
+<p><h3><em>1. </em>Download and unpack the Go source code: </h3>
+<p>		<em><strong>note</strong></em> this guide assumes 
+			<span id="crayon-623c1c3f96680363113674" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">$GOROOT</span></span></span> is set to 
+			<span id="crayon-623c1c3f96684274433735" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">/</span></span></span>.</p>
+<ul>
+<li>
+				Use mercurial (slow) 
+			<span id="crayon-623c1c3f96687548585313" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-e">hg </span><span class="crayon-r">clone</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">u</span><span class="crayon-h"> </span><span class="crayon-e">release </span><span class="crayon-v">https</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-o">/</span><span class="crayon-v">code</span><span class="crayon-e">.google</span><span class="crayon-e">.com</span><span class="crayon-o">/</span><span class="crayon-v">p</span><span class="crayon-o">/</span><span class="crayon-v">go</span></span></span>
+			</li>
+<li>
+				Use the source tarball from <a href="https://golang.org/dl/" rel="external" target="_blank">golang.org</a>
+			</li>
+</ul>
+<p>
+	</p>
+<p>	<em>1a. </em>(optional but recommended) add 
+			<span id="crayon-623c1c3f9668a043070654" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-e">export </span><span class="crayon-v">PATH</span><span class="crayon-o">=</span><span class="crayon-s">"$PATH:$GOROOT/bin"</span></span></span> to your 
+			<span id="crayon-623c1c3f9668d144709592" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-o">~</span><span class="crayon-o">/</span><span class="crayon-e">.bashrc</span></span></span> (or the equivalent file for your shell).
+</p>
+<p><h3><em>2. </em>Compiling the native toolchain:</h3>
+<p>	</p>
+		<div id="crayon-623c1c3f9668f588968049" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+cd $GOROOT/src
+$ ./make.bash
+.....
+Installed Go for linux/amd64 in /usr/src/go-release
+Installed commands in /usr/src/go-release/bin</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f9668f588968049-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f9668f588968049-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f9668f588968049-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f9668f588968049-4">4</div><div class="crayon-num" data-line="crayon-623c1c3f9668f588968049-5">5</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f9668f588968049-1"><span class="crayon-r">cd</span><span class="crayon-h"> </span><span class="crayon-v">$GOROOT</span><span class="crayon-o">/</span><span class="crayon-i">src</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f9668f588968049-2"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-sy">.</span><span class="crayon-o">/</span><span class="crayon-r">make</span><span class="crayon-e">.bash</span></div><div class="crayon-line" id="crayon-623c1c3f9668f588968049-3"><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f9668f588968049-4"><span class="crayon-e">Installed </span><span class="crayon-e">Go </span><span class="crayon-st">for</span><span class="crayon-h"> </span><span class="crayon-v">linux</span><span class="crayon-o">/</span><span class="crayon-e">amd64 </span><span class="crayon-st">in</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">-</span><span class="crayon-e">release</span></div><div class="crayon-line" id="crayon-623c1c3f9668f588968049-5"><span class="crayon-e">Installed </span><span class="crayon-e">commands </span><span class="crayon-st">in</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">-</span><span class="crayon-v">release</span><span class="crayon-o">/</span><span class="crayon-v">bin</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p></p>
+<p><h3><em>3. </em>Compiling the Windows toolchain without CGO:</h3>
+<p>	</p>
+		<div id="crayon-623c1c3f96692599214085" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+cd $GOROOT/src
+$ env GOOS=windows GOARCH=386 ./make.bash --no-clean
+.....
+Installed Go for windows/386 in /usr/src/go-release
+Installed commands in /usr/src/go-release/bin</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f96692599214085-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f96692599214085-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f96692599214085-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f96692599214085-4">4</div><div class="crayon-num" data-line="crayon-623c1c3f96692599214085-5">5</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f96692599214085-1"><span class="crayon-r">cd</span><span class="crayon-h"> </span><span class="crayon-v">$GOROOT</span><span class="crayon-o">/</span><span class="crayon-i">src</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f96692599214085-2"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-r">env</span><span class="crayon-h"> </span><span class="crayon-v">GOOS</span><span class="crayon-o">=</span><span class="crayon-e">windows </span><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-sy">.</span><span class="crayon-o">/</span><span class="crayon-r">make</span><span class="crayon-e">.bash</span><span class="crayon-h"> </span><span class="crayon-o">--</span><span class="crayon-v">no</span><span class="crayon-o">-</span><span class="crayon-i">clean</span></div><div class="crayon-line" id="crayon-623c1c3f96692599214085-3"><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f96692599214085-4"><span class="crayon-e">Installed </span><span class="crayon-e">Go </span><span class="crayon-st">for</span><span class="crayon-h"> </span><span class="crayon-v">windows</span><span class="crayon-o">/</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-st">in</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">-</span><span class="crayon-e">release</span></div><div class="crayon-line" id="crayon-623c1c3f96692599214085-5"><span class="crayon-e">Installed </span><span class="crayon-e">commands </span><span class="crayon-st">in</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">-</span><span class="crayon-v">release</span><span class="crayon-o">/</span><span class="crayon-v">bin</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p>Repeat with 
+			<span id="crayon-623c1c3f96694014495145" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-v">amd64</span></span></span> if you want to build win64 binaries.</p>
+<p><h3><em>4. </em>Compiling the Windows toolchain with CGO support:</h3>
+<ul>
+<li>Install 
+			<span id="crayon-623c1c3f96697166599693" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">mingw</span><span class="crayon-o">-</span><span class="crayon-v">w64</span><span class="crayon-o">-</span><span class="crayon-v">gcc</span></span></span></p>
+		<div id="crayon-623c1c3f96699321129234" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+sudo pacman -S mingw-w64-gcc
+.....
+(1/1) installing mingw-w64-gcc</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f96699321129234-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f96699321129234-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f96699321129234-3">3</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f96699321129234-1"><span class="crayon-e">sudo </span><span class="crayon-v">pacman</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">S</span><span class="crayon-h"> </span><span class="crayon-v">mingw</span><span class="crayon-o">-</span><span class="crayon-v">w64</span><span class="crayon-o">-</span><span class="crayon-i">gcc</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f96699321129234-2"><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line" id="crayon-623c1c3f96699321129234-3"><span class="crayon-sy">(</span><span class="crayon-cn">1</span><span class="crayon-o">/</span><span class="crayon-cn">1</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-e">installing </span><span class="crayon-v">mingw</span><span class="crayon-o">-</span><span class="crayon-v">w64</span><span class="crayon-o">-</span><span class="crayon-v">gcc</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p>
+		</li>
+</ul>
+<p>	</p>
+		<div id="crayon-623c1c3f9669c144357171" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+cd $GOROOT/src
+$ env CGO_ENABLED=1 GOOS=windows GOARCH=386 CC_FOR_TARGET="i686-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp" ./make.bash --no-clean
+......
+Installed Go for windows/386 in /usr/src/go-release
+Installed commands in /usr/src/go-release/bin</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f9669c144357171-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f9669c144357171-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f9669c144357171-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f9669c144357171-4">4</div><div class="crayon-num" data-line="crayon-623c1c3f9669c144357171-5">5</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f9669c144357171-1"><span class="crayon-r">cd</span><span class="crayon-h"> </span><span class="crayon-v">$GOROOT</span><span class="crayon-o">/</span><span class="crayon-i">src</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f9669c144357171-2"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-r">env</span><span class="crayon-h"> </span><span class="crayon-v">CGO_ENABLED</span><span class="crayon-o">=</span><span class="crayon-cn">1</span><span class="crayon-h"> </span><span class="crayon-v">GOOS</span><span class="crayon-o">=</span><span class="crayon-e">windows </span><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-v">CC_FOR_TARGET</span><span class="crayon-o">=</span><span class="crayon-s">"i686-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp"</span><span class="crayon-h"> </span><span class="crayon-sy">.</span><span class="crayon-o">/</span><span class="crayon-r">make</span><span class="crayon-e">.bash</span><span class="crayon-h"> </span><span class="crayon-o">--</span><span class="crayon-v">no</span><span class="crayon-o">-</span><span class="crayon-i">clean</span></div><div class="crayon-line" id="crayon-623c1c3f9669c144357171-3"><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f9669c144357171-4"><span class="crayon-e">Installed </span><span class="crayon-e">Go </span><span class="crayon-st">for</span><span class="crayon-h"> </span><span class="crayon-v">windows</span><span class="crayon-o">/</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-st">in</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">-</span><span class="crayon-e">release</span></div><div class="crayon-line" id="crayon-623c1c3f9669c144357171-5"><span class="crayon-e">Installed </span><span class="crayon-e">commands </span><span class="crayon-st">in</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">src</span><span class="crayon-o">/</span><span class="crayon-v">go</span><span class="crayon-o">-</span><span class="crayon-v">release</span><span class="crayon-o">/</span><span class="crayon-v">bin</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p>Repeat with 
+			<span id="crayon-623c1c3f9669f258606895" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-e">amd64 </span><span class="crayon-v">CC_FOR_TARGET</span><span class="crayon-o">=</span>"<span class="crayon-v">x86_64</span><span class="crayon-o">-</span><span class="crayon-v">w64</span><span class="crayon-o">-</span><span class="crayon-v">mingw32</span><span class="crayon-o">-</span><span class="crayon-i">gcc</span><span class="crayon-h"> </span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></span></span> if you want to build win64 binaries.</p>
+<p><em><strong>note</strong></em> that once the bug is fixed, you can remove 
+			<span id="crayon-623c1c3f966a2976323451" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-o">-</span><span class="crayon-v">fno</span><span class="crayon-o">-</span><span class="crayon-v">stack</span><span class="crayon-o">-</span><span class="crayon-v">protector</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-v">D_FORTIFY_SOURCE</span><span class="crayon-o">=</span><span class="crayon-cn">0</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-v">lssp</span></span></span> from 
+			<span id="crayon-623c1c3f966a4935960860" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">CC_FOR_TARGET</span></span></span>.</p>
+</p>
+<h2>Actually compiling your code to run on windows:</h2>
+<p>We use the same environment variables from earlier, except we have to replace 
+			<span id="crayon-623c1c3f966a7592219853" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">CC_FOR_TARGET</span></span></span> with 
+			<span id="crayon-623c1c3f966a9264437771" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-v">CC</span></span></span></p>
+<h4>Code:</h4>
+<p></p>
+		<div id="crayon-623c1c3f966ac398947948" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><span class="crayon-title"></span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-expand-button" title="Expand Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div><span class="crayon-language">Shell</span></div></div>
+			<div class="crayon-info" style="min-height: 16.8px !important; line-height: 16.8px !important;"></div>
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+package main
+
+/*
+static int answerToLife() {
+	return 42;
+}
+*/
+import "C"
+
+import "fmt"
+
+func main() {
+	fmt.Println("the answer to life is", C.answerToLife())
+}</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-4">4</div><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-6">6</div><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-7">7</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-8">8</div><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-9">9</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-10">10</div><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-11">11</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-12">12</div><div class="crayon-num" data-line="crayon-623c1c3f966ac398947948-13">13</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966ac398947948-14">14</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f966ac398947948-1"><span class="crayon-t">package</span><span class="crayon-h"> </span><span class="crayon-v">main</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-2">&nbsp;</div><div class="crayon-line" id="crayon-623c1c3f966ac398947948-3"><span class="crayon-o">/</span><span class="crayon-o">*</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-4"><span class="crayon-e">static </span><span class="crayon-t">int</span><span class="crayon-h"> </span><span class="crayon-e">answerToLife</span><span class="crayon-sy">(</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line" id="crayon-623c1c3f966ac398947948-5"><span class="crayon-h">	</span><span class="crayon-st">return</span><span class="crayon-h"> </span><span class="crayon-cn">42</span><span class="crayon-sy">;</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-6"><span class="crayon-sy">}</span></div><div class="crayon-line" id="crayon-623c1c3f966ac398947948-7"><span class="crayon-o">*</span><span class="crayon-o">/</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-8"><span class="crayon-i">import</span><span class="crayon-h"> </span><span class="crayon-s">"C"</span></div><div class="crayon-line" id="crayon-623c1c3f966ac398947948-9">&nbsp;</div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-10"><span class="crayon-i">import</span><span class="crayon-h"> </span><span class="crayon-s">"fmt"</span></div><div class="crayon-line" id="crayon-623c1c3f966ac398947948-11">&nbsp;</div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-12"><span class="crayon-e">func </span><span class="crayon-e">main</span><span class="crayon-sy">(</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line" id="crayon-623c1c3f966ac398947948-13"><span class="crayon-h">	</span><span class="crayon-v">fmt</span><span class="crayon-e">.Println</span><span class="crayon-sy">(</span><span class="crayon-s">"the answer to life is"</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-v">C</span><span class="crayon-e">.answerToLife</span><span class="crayon-sy">(</span><span class="crayon-sy">)</span><span class="crayon-sy">)</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966ac398947948-14"><span class="crayon-sy">}</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p></p>
+<h4>Testing:</h4>
+<p></p>
+		<div id="crayon-623c1c3f966af374258258" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+$ env CGO_ENABLED=1 GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp" go build -o test32.exe
+$ file test32.exe 
+test32.exe: PE32 executable (console) Intel 80386 (stripped to external PDB), for MS Windows
+
+# or build it as a GUI application so Windows won't open up a console window.
+
+$ env CGO_ENABLED=1 GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp" go build -ldflags -H=windowsgui -o test32.exe
+$ file test32.exe
+test32.exe: PE32 executable (GUI) Intel 80386 (stripped to external PDB), for MS Windows
+
+$ wine test32.exe
+the answer to life is 42</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f966af374258258-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966af374258258-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f966af374258258-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966af374258258-4">4</div><div class="crayon-num" data-line="crayon-623c1c3f966af374258258-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966af374258258-6">6</div><div class="crayon-num" data-line="crayon-623c1c3f966af374258258-7">7</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966af374258258-8">8</div><div class="crayon-num" data-line="crayon-623c1c3f966af374258258-9">9</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966af374258258-10">10</div><div class="crayon-num" data-line="crayon-623c1c3f966af374258258-11">11</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f966af374258258-12">12</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f966af374258258-1"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-r">env</span><span class="crayon-h"> </span><span class="crayon-v">CGO_ENABLED</span><span class="crayon-o">=</span><span class="crayon-cn">1</span><span class="crayon-h"> </span><span class="crayon-v">GOOS</span><span class="crayon-o">=</span><span class="crayon-e">windows </span><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-v">CC</span><span class="crayon-o">=</span><span class="crayon-s">"i686-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp"</span><span class="crayon-h"> </span><span class="crayon-e">go </span><span class="crayon-v">build</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">o</span><span class="crayon-h"> </span><span class="crayon-v">test32</span><span class="crayon-e">.exe</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966af374258258-2"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-r">file</span><span class="crayon-h"> </span><span class="crayon-v">test32</span><span class="crayon-e">.exe</span><span class="crayon-h"> </span></div><div class="crayon-line" id="crayon-623c1c3f966af374258258-3"><span class="crayon-v">test32</span><span class="crayon-e">.exe</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-e">PE32 </span><span class="crayon-e">executable</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-v">console</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-i">Intel</span><span class="crayon-h"> </span><span class="crayon-cn">80386</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-e">stripped </span><span class="crayon-st">to</span><span class="crayon-h"> </span><span class="crayon-e">external </span><span class="crayon-v">PDB</span><span class="crayon-sy">)</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-st">for</span><span class="crayon-h"> </span><span class="crayon-e">MS </span><span class="crayon-v">Windows</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966af374258258-4">&nbsp;</div><div class="crayon-line" id="crayon-623c1c3f966af374258258-5"><span class="crayon-c"># or build it as a GUI application so Windows won't open up a console window.</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966af374258258-6">&nbsp;</div><div class="crayon-line" id="crayon-623c1c3f966af374258258-7"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-r">env</span><span class="crayon-h"> </span><span class="crayon-v">CGO_ENABLED</span><span class="crayon-o">=</span><span class="crayon-cn">1</span><span class="crayon-h"> </span><span class="crayon-v">GOOS</span><span class="crayon-o">=</span><span class="crayon-e">windows </span><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-v">CC</span><span class="crayon-o">=</span><span class="crayon-s">"i686-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp"</span><span class="crayon-h"> </span><span class="crayon-e">go </span><span class="crayon-v">build</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-v">ldflags</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-v">H</span><span class="crayon-o">=</span><span class="crayon-v">windowsgui</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">o</span><span class="crayon-h"> </span><span class="crayon-v">test32</span><span class="crayon-e">.exe</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966af374258258-8"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-r">file</span><span class="crayon-h"> </span><span class="crayon-v">test32</span><span class="crayon-e">.exe</span></div><div class="crayon-line" id="crayon-623c1c3f966af374258258-9"><span class="crayon-v">test32</span><span class="crayon-e">.exe</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-e">PE32 </span><span class="crayon-e">executable</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-v">GUI</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-i">Intel</span><span class="crayon-h"> </span><span class="crayon-cn">80386</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-e">stripped </span><span class="crayon-st">to</span><span class="crayon-h"> </span><span class="crayon-e">external </span><span class="crayon-v">PDB</span><span class="crayon-sy">)</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-st">for</span><span class="crayon-h"> </span><span class="crayon-e">MS </span><span class="crayon-i">Windows</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966af374258258-10">&nbsp;</div><div class="crayon-line" id="crayon-623c1c3f966af374258258-11"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-e">wine </span><span class="crayon-v">test32</span><span class="crayon-e">.exe</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f966af374258258-12"><span class="crayon-e">the </span><span class="crayon-e">answer </span><span class="crayon-st">to</span><span class="crayon-h"> </span><span class="crayon-e">life </span><span class="crayon-st">is</span><span class="crayon-h"> </span><span class="crayon-cn">42</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p></p>
+<p><em><strong>note</strong></em> that to build native go with cgo you will have to use 
+			<span id="crayon-623c1c3f966b1575391136" class="crayon-syntax crayon-syntax-inline  crayon-theme-monokai crayon-theme-monokai-inline crayon-font-monospace" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important;"><span class="crayon-pre crayon-code" style="font-size: 12px !important; line-height: 15px !important;font-size: 12px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><span class="crayon-r">env</span><span class="crayon-h"> </span><span class="crayon-v">CC</span><span class="crayon-o">=</span><span class="crayon-e">gcc </span><span class="crayon-e">go </span><span class="crayon-v">build</span></span></span></p>
+		</div>
+
+		<footer class="entry-meta"><div class="tags"><i class="glyphicon glyphicon-tags"></i> <span><a href="https://www.limitlessfx.com/tag/arch-linux-2" rel="tag">arch-linux</a></span><span><a href="https://www.limitlessfx.com/tag/crosscompile" rel="tag">crosscompile</a></span><span><a href="https://www.limitlessfx.com/tag/howto" rel="tag">howto</a></span><span><a href="https://www.limitlessfx.com/tag/linux-2" rel="tag">linux</a></span><span><a href="https://www.limitlessfx.com/tag/windows" rel="tag">windows</a></span><span><a href="https://www.limitlessfx.com/tag/workaround" rel="tag">workaround</a></span></div></footer>	</article><!-- #post-## -->
+
+	<hr>
+	<!-- /article -->
+
+
+			<div class="comments">
+
+
+	<h3 class="comments-title">
+	3 comments on &ldquo;HOWTO: Cross-compile a Go app for Windows from Linux&rdquo;	</h3>
+
+	
+	<ol class="comment-list">
+				<li id="comment-127330" class="comment even thread-even depth-1">
+			<article id="div-comment-127330" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt='' src='https://secure.gravatar.com/avatar/422a599800647d49785842294ecaa3cf?s=34&#038;d=mm&#038;r=g' srcset='https://secure.gravatar.com/avatar/422a599800647d49785842294ecaa3cf?s=68&#038;d=mm&#038;r=g 2x' class='avatar avatar-34 photo' height='34' width='34' />						<b class="fn">Max</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html#comment-127330">
+							<time datetime="2016-11-17T18:30:09+02:00">
+								2016/11/17 at 6:30 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Thanks! This was super helpful!</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel='nofollow' class='comment-reply-link' href='https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html?replytocom=127330#respond' data-commentid="127330" data-postid="161" data-belowelement="div-comment-127330" data-respondelement="respond" aria-label='Reply to Max'>Reply</a></div>			</article><!-- .comment-body -->
+		</li><!-- #comment-## -->
+		<li id="comment-120189" class="comment odd alt thread-odd thread-alt depth-1 parent">
+			<article id="div-comment-120189" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt='' src='https://secure.gravatar.com/avatar/4e40b59f44f991c01cf662f76ac3c915?s=34&#038;d=mm&#038;r=g' srcset='https://secure.gravatar.com/avatar/4e40b59f44f991c01cf662f76ac3c915?s=68&#038;d=mm&#038;r=g 2x' class='avatar avatar-34 photo' height='34' width='34' />						<b class="fn"><a href='http://www.github.com' rel='external nofollow ugc' class='url'>Dave</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html#comment-120189">
+							<time datetime="2015-09-24T01:08:13+02:00">
+								2015/09/24 at 1:08 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Great post! I only found it by accident, but you may be able to find a solution to a similar problem. In my case, I'm cross-compiling AND using CGO so I can include C source code in my cross-compiled go program. I thought everything was going perfectly until I hit a wall: there is on way to cross-compile test code (AFAIK).</p>
+<p>Do you have any suggestions?</p>
+<p>Thanks!<br />
+Dave</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel='nofollow' class='comment-reply-link' href='https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html?replytocom=120189#respond' data-commentid="120189" data-postid="161" data-belowelement="div-comment-120189" data-respondelement="respond" aria-label='Reply to Dave'>Reply</a></div>			</article><!-- .comment-body -->
+		<ol class="children">
+		<li id="comment-124607" class="comment byuser comment-author-oneofone bypostauthor even depth-2">
+			<article id="div-comment-124607" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt='' src='https://secure.gravatar.com/avatar/2ce699e2ec2d8ddb26b6a866191da86d?s=34&#038;d=mm&#038;r=g' srcset='https://secure.gravatar.com/avatar/2ce699e2ec2d8ddb26b6a866191da86d?s=68&#038;d=mm&#038;r=g 2x' class='avatar avatar-34 photo' height='34' width='34' />						<b class="fn"><a href='http://www.limitlessfx.com/' rel='external nofollow ugc' class='url'>OneOfOne</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html#comment-124607">
+							<time datetime="2016-02-06T09:30:36+02:00">
+								2016/02/06 at 9:30 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>You can try to compile the test binary and then run it with wine, for example:</p>
+<p></p>
+		<div id="crayon-623c1c3f9778b453815201" class="crayon-syntax crayon-theme-monokai crayon-font-monospace crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-always disable-anim wrap" style=" margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><span class="crayon-title"></span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-expand-button" title="Expand Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div></div></div>
+			<div class="crayon-info" style="min-height: 16.8px !important; line-height: 16.8px !important;"></div>
+			<div class="crayon-plain-wrap"><textarea  class="crayon-plain print-no" data-settings="dblclick" readonly style="-moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4; font-size: 12px !important; line-height: 15px !important;">
+$ env CGO_ENABLED=1 GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc" go test -c
+
+$ wine ./yourapp.test.exe -test.run=xxx</textarea></div>
+			<div class="crayon-main" style="">
+				<table class="crayon-table">
+					<tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-623c1c3f9778b453815201-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-623c1c3f9778b453815201-2">2</div><div class="crayon-num" data-line="crayon-623c1c3f9778b453815201-3">3</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-623c1c3f9778b453815201-1"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-e">env </span><span class="crayon-v">CGO_ENABLED</span><span class="crayon-o">=</span><span class="crayon-cn">1</span><span class="crayon-h"> </span><span class="crayon-v">GOOS</span><span class="crayon-o">=</span><span class="crayon-e">windows </span><span class="crayon-v">GOARCH</span><span class="crayon-o">=</span><span class="crayon-cn">386</span><span class="crayon-h"> </span><span class="crayon-v">CC</span><span class="crayon-o">=</span><span class="crayon-s">"i686-w64-mingw32-gcc"</span><span class="crayon-h"> </span><span class="crayon-e">go </span><span class="crayon-v">test</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">c</span></div><div class="crayon-line crayon-striped-line" id="crayon-623c1c3f9778b453815201-2">&nbsp;</div><div class="crayon-line" id="crayon-623c1c3f9778b453815201-3"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-i">wine</span><span class="crayon-h"> </span><span class="crayon-sy">.</span><span class="crayon-o">/</span><span class="crayon-v">yourapp</span><span class="crayon-sy">.</span><span class="crayon-v">test</span><span class="crayon-sy">.</span><span class="crayon-v">exe</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-v">test</span><span class="crayon-sy">.</span><span class="crayon-v">run</span><span class="crayon-o">=</span><span class="crayon-v">xxx</span></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><p></p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel='nofollow' class='comment-reply-link' href='https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html?replytocom=124607#respond' data-commentid="124607" data-postid="161" data-belowelement="div-comment-124607" data-respondelement="respond" aria-label='Reply to OneOfOne'>Reply</a></div>			</article><!-- .comment-body -->
+		</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	</ol>
+	
+		<form action="https://www.limitlessfx.com/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+		<input type='hidden' name='comment_post_ID' value='161' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+		<fieldset>
+			<legend class="text-center">Leave a Reply</legend>
+			<div id="respond" class="comment-respond">
+				<small>
+					<a rel="nofollow" id="cancel-comment-reply-link" href="/cross-compile-golang-app-for-windows-from-linux.html#respond" style="display:none;">Cancel reply</a>				</small>
+
+								<p class="comment-notes">Your email address will not be published. Required fields are
+					marked <span class="required">*</span></p>
+
+				<div class="comment-form-author form-group">
+					<label class="col-md-3 control-label" for="author">Name <span class="required">*</span></label>
+					<div class="col-md-9">
+						<input id="author" name="author" type="text" value="" size="30" aria-required="true" class="form-control">
+					</div>
+				</div>
+				<div class="comment-form-email form-group">
+					<label class="col-md-3 control-label" for="email">Email <span class="required">*</span></label>
+					<div class="col-md-9">
+						<input id="email" name="email" type="email" value="" aria-required="true" class="form-control">
+					</div>
+				</div>
+				<div class="comment-form-url form-group">
+					<label class="col-md-3 control-label" for="url">Website</label>
+
+					<div class="col-md-9"><input id="url" name="url" type="url" value="" class="form-control"></div>
+				</div>
+								<div class="comment-form-comment form-group">
+					<label class="col-md-3 control-label" for="comment">Comment</label>
+
+					<div class="col-md-9">
+						<textarea class="form-control" id="comment" name="comment" cols="45" rows="8"aria-required="true"></textarea>
+					</div>
+				</div>
+				
+		<p style="position:absolute; left:-99999px">
+			<input type="hidden" name="NS_CID" value="1648106559.710452" />
+			<input type="text" id="email-11" name="email-11" size="30" value="-"/>
+		</p>
+		<script>(function(e){if(e)e.value="js";})(document.getElementById("email-11"));</script>				<div class="form-group">
+					<div class="col-md-10 form-allowed-tags">
+						You may use these <abbr title="HyperText Markup Language">HTML</abbr>tags and attributes: <br><code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code class=&quot;&quot; title=&quot;&quot; data-url=&quot;&quot;&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;s&gt; &lt;strike&gt; &lt;strong&gt; &lt;pre class=&quot;&quot; title=&quot;&quot; data-url=&quot;&quot;&gt; &lt;span class=&quot;&quot; title=&quot;&quot; data-url=&quot;&quot;&gt; </code>
+					</div>
+					<div class="col-md-2 text-right">
+						<button type="submit" class="btn btn-primary btn-lg">Submit</button>
+					</div>
+				</div>
+
+
+			</div>
+		</fieldset>
+	</form>
+
+	
+</div>
+		
+		</section>
+		<!-- /section -->
+	</main>
+	<aside class="col-xs-12 col-md-3 col-md-offset-0 sidebar" role="complementary">
+	<div class="sidebar-widget">
+		<div class="search-widget">
+			<form role="search" method="get" class="search-form" action="https://www.limitlessfx.com">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field form-control" placeholder="Search &hellip;"
+					       value="" name="s" title="Search for:">
+				</label>
+			</form>
+		</div>
+
+		<div id="recently-updated-posts" class="bootstrap_updated_links"><h3>Recently Updated Posts</h3><dl>
+<dt><a href="https://www.limitlessfx.com/gw2-event-boss-timers.html" rel="bookmark" title="Read Guild Wars 2 Event And Boss Timers.">Guild Wars 2 Event And Boss Timers.</a></dt>
+<dd>Updated on : <time class="updated" datetime="C"><small>2020/09/15</small></time></dd>
+<dt><a href="https://www.limitlessfx.com/using-the-xbox-one-controller-with-the-talos-principle.html" rel="bookmark" title="Read Using the Xbox One Controller with The Talos Principle">Using the Xbox One Controller with The Talos Principle</a></dt>
+<dd>Updated on : <time class="updated" datetime="C"><small>2016/06/30</small></time></dd>
+<dt><a href="https://www.limitlessfx.com/cross-compile-golang-app-for-windows-from-linux.html" rel="bookmark" title="Read HOWTO: Cross-compile a Go app for Windows from Linux">HOWTO: Cross-compile a Go app for Windows from Linux</a></dt>
+<dd>Updated on : <time class="updated" datetime="C"><small>2014/10/09</small></time></dd>
+<dt><a href="https://www.limitlessfx.com/poor-mans-multi-cursor-in-vim.html" rel="bookmark" title="Read Poor man&#8217;s multi cursor in VIM">Poor man&#8217;s multi cursor in VIM</a></dt>
+<dd>Updated on : <time class="updated" datetime="C"><small>2014/09/14</small></time></dd>
+<dt><a href="https://www.limitlessfx.com/sourcing-different-environment-files-in-fish-shell.html" rel="bookmark" title="Read Sourcing different environment files in Fish Shell">Sourcing different environment files in Fish Shell</a></dt>
+<dd>Updated on : <time class="updated" datetime="C"><small>2014/05/04</small></time></dd>
+</dl></div><div id="recent-comments-3" class="widget_recent_comments"><h3>Recent Comments</h3><ul id="recentcomments"><li class="recentcomments"><span class="comment-author-link">fiery</span> on <a href="https://www.limitlessfx.com/gw2-event-boss-timers.html#comment-131778">Guild Wars 2 Event And Boss Timers.</a></li><li class="recentcomments"><span class="comment-author-link">Dragon Hunter</span> on <a href="https://www.limitlessfx.com/gw2-event-boss-timers.html#comment-131392">Guild Wars 2 Event And Boss Timers.</a></li><li class="recentcomments"><span class="comment-author-link">fiery</span> on <a href="https://www.limitlessfx.com/gw2-event-boss-timers.html#comment-131315">Guild Wars 2 Event And Boss Timers.</a></li><li class="recentcomments"><span class="comment-author-link">Dragon Hunter</span> on <a href="https://www.limitlessfx.com/gw2-event-boss-timers.html#comment-128273">Guild Wars 2 Event And Boss Timers.</a></li><li class="recentcomments"><span class="comment-author-link">ice</span> on <a href="https://www.limitlessfx.com/gw2-event-boss-timers.html#comment-128258">Guild Wars 2 Event And Boss Timers.</a></li></ul></div><div id="text-4" class="widget_text"><h3>Social</h3>			<div class="textwidget"><ul>
+	<li><script>
+var guymal_enc= "ihci`ihcFakgoj(eik", dw = function(w) { document.write(w); };
+dw('<a href="mailto:');
+for(guymal_i=0;guymal_i<guymal_enc.length;++guymal_i) { dw(String.fromCharCode(6^guymal_enc.charCodeAt(guymal_i)));}
+dw('">Email Me</a>');
+</script></li>
+	<li><a href="https://twitter.com/10F1">Twitter</a></li>
+	<li><a href="https://github.com/OneOfOne?tab=repositories" rel="external" title="My github repos">GitHub</a></li>
+	<li><a href="http://www.codeeval.com/profile/OneOfOne/" rel="external" title="My CodeEval profile">CodeEval</a></li>
+	<li><a href="https://www.linkedin.com/in/oneofone" rel="external" title="My LinkedIn profile">LinkedIn</a></li>
+	<li><a href="https://careers.stackoverflow.com/oneofone" rel="external" title="My Careers.SO resume">Resume on Careers.SO</a></li>
+<li><a href="/gpg-pgp-public-key" title="My GPG Public Key">GPG Public Key</a></li>
+	<li><a href="https://stackoverflow.com/users/145587/oneofone"><img src="https://stackoverflow.com/users/flair/145587.png?theme=dark" width="208" height="58" alt="OneOfOne's Profile">
+</a></li>
+</ul></div>
+		</div>	</div>
+</aside>
+
+			</div>
+			<footer id="page-footer" role="contentinfo" class="row">
+				<div class="site-info">
+					Copyright &copy; 2004-2022					<a href="http://www.limitlessfx.com" title="OneOfOne" rel="home">OneOfOne</a> |
+					This site uses Google Analytics with <a href="https://support.google.com/analytics/answer/2763052?hl=en">IP
+						Anonymization</a> turned on.
+				</div><!-- .site-info -->
+				<link rel='stylesheet' id='crayon-css'  href='https://www.limitlessfx.com/wp-content/plugins/crayon-syntax-highlighter/css/min/crayon.min.css?ver=_2.7.2_beta' type='text/css' media='all' />
+<script type='text/javascript' src='https://www.limitlessfx.com/wp-content/themes/bootstrap-blank/js/jquery-2.1.0.min.js?ver=2.1.0'></script>
+<script type='text/javascript' src='https://www.limitlessfx.com/wp-content/themes/bootstrap-blank/js/bootstrap.min.js?ver=3.1.1'></script>
+<script type='text/javascript' src='https://www.limitlessfx.com/wp-includes/js/wp-embed.min.js?ver=5.4.10'></script>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var CrayonSyntaxSettings = {"version":"_2.7.2_beta","is_admin":"0","ajaxurl":"https:\/\/www.limitlessfx.com\/wp-admin\/admin-ajax.php","prefix":"crayon-","setting":"crayon-setting","selected":"crayon-setting-selected","changed":"crayon-setting-changed","special":"crayon-setting-special","orig_value":"data-orig-value","debug":""};
+var CrayonSyntaxStrings = {"copy":"Press %s to Copy, %s to Paste","minimize":"Click To Expand Code"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.limitlessfx.com/wp-content/plugins/crayon-syntax-highlighter/js/min/crayon.min.js?ver=_2.7.2_beta'></script>
+
+			</footer>
+		</div> <!-- .container -->
+	<script>
+		var gaid = 'UA-11659673-1';
+
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', gaid, 'limitlessfx.com');
+		ga('require', 'displayfeatures');
+		ga('set', 'anonymizeIp', true);
+		ga('send', 'pageview');
+
+	</script>
+	</body>
+</html>
+<!-- Page generated by LiteSpeed Cache 4.4.7 on 2022-03-24 09:22:39 -->

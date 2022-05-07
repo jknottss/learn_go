@@ -1,0 +1,113 @@
+<meta charset="utf-8"/>
+<co-content>
+ <p>
+  В курсе используется версия Go 1.9. Скорее всего все примеры будут работать на версии 1.8, но не 1.7
+ </p>
+ <ol bullettype="numbers">
+  <li>
+   <p>
+    Windows - загрузить инсталятор с официального сайта
+    <a href="https://golang.org/dl/" title="">
+     https://golang.org/dl/
+    </a>
+    и следовать инструкциям
+    <a href="https://golang.org/doc/install" title="">
+     https://golang.org/doc/install
+    </a>
+   </p>
+  </li>
+  <li>
+   <p>
+    Linux - можно воспользоваться стандартным пакетным менеджером, скриптом
+    <a href="https://gist.github.com/jniltinho/8758e15a9ef80a189fce" title="">
+     https://gist.github.com/jniltinho/8758e15a9ef80a189fce
+    </a>
+    или статьей
+    <a href="https://www.tecmint.com/install-go-in-linux/" title="">
+     https://www.tecmint.com/install-go-in-linux/
+    </a>
+    . Однако обратите внимание, что в вашем дистрибутиве может быть версия младше 1.8
+   </p>
+  </li>
+  <li>
+   <p>
+    MacOS - следуйте инструкциям с офф. сайта ( ссылки выше ) или
+    <a href="http://sourabhbajaj.com/mac-setup/Go/README.html" title="">
+     http://sourabhbajaj.com/mac-setup/Go/README.html
+    </a>
+   </p>
+  </li>
+ </ol>
+ <p>
+  Не забудьте перелогиниться после установки для обновления GOPATH - это бывает частой проблемой
+ </p>
+ <p>
+  Так же полезно будет добавить в переменную PATH путь к $GOPATH/bin - там стандартный установщик пакетов размещает запускаемые файлы.
+ </p>
+ <p>
+  ----
+ </p>
+ <p>
+  Для пользователей Windows:
+ </p>
+ <p>
+  Power Shell в некоторых местах эскейпит больше чем надо и рекомендуется запускать код и тесты через bash из комплекта Git For Windows.
+ </p>
+ <p>
+  Для того чтобы подключить git bash в Visual Studio Code надо прописать в настройках
+  <a href="https://s.mail.ru/6WPp/UcymwHcK7" title="">
+   https://s.mail.ru/6WPp/UcymwHcK7
+  </a>
+ </p>
+ <pre language="plain_text">"terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",</pre>
+ <p>
+ </p>
+</co-content>
+<style>
+ body {
+    padding: 50px 85px 50px 85px;
+}
+
+table th, table td {
+    border: 1px solid #e0e0e0;
+    padding: 5px 20px;
+    text-align: left;
+}
+input {
+    margin: 10px;
+}
+}
+th {
+    font-weight: bold;
+}
+td, th {
+    display: table-cell;
+    vertical-align: inherit;
+}
+img {
+    height: auto;
+    max-width: 100%;
+}
+pre {
+    display: block;
+    margin: 20px;
+    background: #424242;
+    color: #fff;
+    font-size: 13px;
+    white-space: pre-wrap;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    border: 1px solid #ccc;
+}
+</style>
+<script async="" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+</script>
+<script type="text/x-mathjax-config">
+ MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$$','$$'], ['$','$'] ],
+      displayMath: [ ["\\[","\\]"] ],
+      processEscapes: true
+    }
+  });
+</script>

@@ -1,0 +1,105 @@
+<meta charset="utf-8"/>
+<co-content>
+ <p>
+  Функция interfaсe2struct
+ </p>
+ <asset assettype="generic" extension="zip" id="gIfKSyLDEeiOlhL-wQEarg" name="hw8_i2s">
+ </asset>
+ <p>
+  i2s - interface to struct. Функция, которая заполняет значения структуры из map[string]interface{} и подобных - того что получается, если распаковать json в interface{} (см. пример в json/dynamic.go)
+ </p>
+ <p>
+  Задание на работу с рефлексией.
+ </p>
+ <p>
+  Не смотря на некую мудрённость на первый взгляд - рефлексия применяется очень часто. Понимать как она работает и как вам с ней работать очень пригодится в дальнейшем.
+ </p>
+ <p>
+  Из типов данных достаточно предусмотреть те, что есть в тесте.
+ </p>
+ <p>
+  Запускать go test -v
+ </p>
+ <p>
+  Код писать в файле i2s.go
+ </p>
+ <p>
+  Подсказки:
+ </p>
+ <ul bullettype="bullets">
+  <li>
+   <p>
+    Все нужные вам функции есть в пакете reflect -
+    <a href="https://golang.org/pkg/reflect/" title="">
+     https://golang.org/pkg/reflect/
+    </a>
+    - внимательно читайте документацию
+   </p>
+  </li>
+  <li>
+   <p>
+    json распаковывает int во float. Это указано в документации, не бага. В данном случае будет корректно приводить к инту, если нам встретился флоат
+   </p>
+  </li>
+  <li>
+   <p>
+    Проверяйте всегда что вам приходит на вход. И смотрите, что вы передаёте в функцию (да, рекурсия тут себя хорошо показывает) не reflect.Value, а именно оригинальные данные, до который вы доковырялись через нужные методы рефлекта
+   </p>
+  </li>
+  <li>
+   <p>
+    Если вы в функции используете какие-то имена структур, которые встречаются в тесте - это не правильно
+   </p>
+  </li>
+ </ul>
+ <p>
+ </p>
+</co-content>
+<style>
+ body {
+    padding: 50px 85px 50px 85px;
+}
+
+table th, table td {
+    border: 1px solid #e0e0e0;
+    padding: 5px 20px;
+    text-align: left;
+}
+input {
+    margin: 10px;
+}
+}
+th {
+    font-weight: bold;
+}
+td, th {
+    display: table-cell;
+    vertical-align: inherit;
+}
+img {
+    height: auto;
+    max-width: 100%;
+}
+pre {
+    display: block;
+    margin: 20px;
+    background: #424242;
+    color: #fff;
+    font-size: 13px;
+    white-space: pre-wrap;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    border: 1px solid #ccc;
+}
+</style>
+<script async="" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+</script>
+<script type="text/x-mathjax-config">
+ MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$$','$$'], ['$','$'] ],
+      displayMath: [ ["\\[","\\]"] ],
+      processEscapes: true
+    }
+  });
+</script>

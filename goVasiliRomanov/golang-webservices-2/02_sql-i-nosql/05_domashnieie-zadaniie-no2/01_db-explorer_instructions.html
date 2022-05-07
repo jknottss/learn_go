@@ -1,0 +1,218 @@
+<meta charset="utf-8"/>
+<co-content>
+ <p>
+  Программа db_explorer
+ </p>
+ <asset assettype="generic" extension="zip" id="uxDVryR7EeiwRQpD1GvF-g" name="hw6_db_explorer">
+ </asset>
+ <p>
+  Эта простой веб-сервис будет представлять собой менеджер MySQL-базы данных, который позволяет осуществлять CRUD-запросы (create, read, update, delete) к ней по HTTP
+ </p>
+ <p>
+  В данном задании мы продолжаем отработку навыков работы с HTTP и взаимодействуем с базой данных.
+ </p>
+ <p>
+  Для пользователя это выглядит так:
+ </p>
+ <ul bullettype="bullets">
+  <li>
+   <p>
+    GET / - возвращает список все таблиц (которые мы можем использовать в дальнейших запросах)
+   </p>
+  </li>
+  <li>
+   <p>
+    GET /$table?limit=5&amp;offset=7 - возвращает список из 5 записей (limit) начиная с 7-й (offset) из таблицы $table. limit по-умолчанию 5, offset 0
+   </p>
+  </li>
+  <li>
+   <p>
+    GET /$table/$id - возвращает информацию о самой записи или 404
+   </p>
+  </li>
+  <li>
+   <p>
+    PUT /$table - создаёт новую запись, данный по записи в теле запроса (POST-параметры)
+   </p>
+  </li>
+  <li>
+   <p>
+    POST /$table/$id - обновляет запись, данные приходят в теле запроса (POST-параметры)
+   </p>
+  </li>
+  <li>
+   <p>
+    DELETE /$table/$id - удаляет запись
+   </p>
+  </li>
+ </ul>
+ <p>
+  GET, PUT, POST, DELETE - это http-метод, которым был отправлен запрос
+ </p>
+ <p>
+  Особенности работы программы:
+ </p>
+ <ol bullettype="numbers">
+  <li>
+   <p>
+    Роутинг запросов - руками, никаких внешних библиотек использовать нельзя.
+   </p>
+  </li>
+  <li>
+   <p>
+    Полная динамика. при инициализации в NewDbExplorer считываем из базы список таблиц, полей (запросы ниже), далее работаем с ними при валидации. Никакого хадкода в виде кучи условий и написанного кода для валидации-заполнения. Если добавить третью таблицу - всё должно работать для неё.
+   </p>
+  </li>
+  <li>
+   <p>
+    Считаем что во время работы программы список таблиц не меняется
+   </p>
+  </li>
+  <li>
+   <p>
+    Запросы придётся конструировать динамически, данные оттуда доставать тоже динамически - у вас нет фиксированного списка параметров - вы его подгружаете при инициализации.
+   </p>
+  </li>
+  <li>
+   <p>
+    Валидация на уровне "string - int - float - null", без заморочек. Помните, что json в пустой итнерфейс распаковывает как float, если не указаны спец. опции.
+   </p>
+  </li>
+  <li>
+   <p>
+    Вся работа происходит через database/sql, вам на вход передаётся рабочее подключение к базе. Никаких orm и прочего.
+   </p>
+  </li>
+  <li>
+   <p>
+    Все имена полей так как они в базе.
+   </p>
+  </li>
+  <li>
+   <p>
+    В случае если возникает ошибка - просто возвращаем 500 в http-статусе
+   </p>
+  </li>
+  <li>
+   <p>
+    Не забывайте про SQL-инъекции
+   </p>
+  </li>
+  <li>
+   <p>
+    Неизвестные поля игнорируем
+   </p>
+  </li>
+  <li>
+   <p>
+    <strong>
+     В этом задании запрещено использование глобальных переменных. Всё что вы хотите хранить - храните в полях структуры, которая живёт в замыкании
+    </strong>
+   </p>
+  </li>
+ </ol>
+ <p>
+  Запросы вам в помощь для получения списка таблицы и их структуры:
+ </p>
+ <ul bullettype="bullets">
+  <li>
+   <p>
+    SHOW TABLES;
+   </p>
+  </li>
+  <li>
+   <p>
+    SHOW FULL COLUMNS FROM `$table_name`;
+   </p>
+  </li>
+ </ul>
+ <p>
+  Подсказки:
+ </p>
+ <ul bullettype="bullets">
+  <li>
+   <p>
+    Внутри row, который вы получаете из базы лежат не только сами значения полей, но и метаданные -
+    <a href="https://golang.org/pkg/database/sql/#Rows.ColumnTypes" title="">
+     https://golang.org/pkg/database/sql/#Rows.ColumnTypes
+    </a>
+   </p>
+  </li>
+  <li>
+   <p>
+    Тут будут активно применяться пустые интерфейсы
+   </p>
+  </li>
+  <li>
+   <p>
+    Обратите внимание на обработку null-значения
+   </p>
+  </li>
+  <li>
+   <p>
+    Придётся вытаскивать неизвестное количество полей из row, подумайте как тут можно применить пустые интерфейсы
+   </p>
+  </li>
+ </ul>
+ <p>
+  Поднять mysql-базу локально проще всего через докер:
+ </p>
+ <ul bullettype="bullets">
+  <li>
+   <p>
+    docker run -p 3306:3306 -v $(PWD):/docker-entrypoint-initdb.d -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=golang -d mysql
+   </p>
+  </li>
+ </ul>
+ <p>
+  В грейдере используется MariaDB версии 1:10.3.17-0+deb10u1 из репозитория Debian 10 Buster
+ </p>
+</co-content>
+<style>
+ body {
+    padding: 50px 85px 50px 85px;
+}
+
+table th, table td {
+    border: 1px solid #e0e0e0;
+    padding: 5px 20px;
+    text-align: left;
+}
+input {
+    margin: 10px;
+}
+}
+th {
+    font-weight: bold;
+}
+td, th {
+    display: table-cell;
+    vertical-align: inherit;
+}
+img {
+    height: auto;
+    max-width: 100%;
+}
+pre {
+    display: block;
+    margin: 20px;
+    background: #424242;
+    color: #fff;
+    font-size: 13px;
+    white-space: pre-wrap;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    border: 1px solid #ccc;
+}
+</style>
+<script async="" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+</script>
+<script type="text/x-mathjax-config">
+ MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$$','$$'], ['$','$'] ],
+      displayMath: [ ["\\[","\\]"] ],
+      processEscapes: true
+    }
+  });
+</script>
