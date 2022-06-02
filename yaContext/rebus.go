@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-    "log"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -41,22 +41,27 @@ func main() {
 	}
 	var n, input, vrem string
 
-	fmt.Scan(&n) 
+	fmt.Scan(&n)
 
 	count, _ := strconv.Atoi(n)
-    for i:=0; i < count; i++ {
-        fmt.Scan(&input)
-        vrem = vrem + " " + input
-    }
+	for i := 0; i < count; i++ {
+		fmt.Scan(&input)
+		vrem = vrem + " " + input
+	}
+	log.Println(vrem)
 	split := strings.Split(vrem, " ")
-	for i:=0; i <= count; i++ {
+	log.Println(split)
+	for i := 0; i <= count; i++ {
 		nbr, _ := strconv.Atoi(split[i])
-        if i > 0 {
-        	tmp, _ := strconv.Atoi(split[i - 1])
+		if i > 0 {
+			tmp, _ := strconv.Atoi(split[i-1])
 			nbr = nbr - tmp
-            log.Println(nbr)
-        }
+			if nbr < 0 {
+				nbr *= -1
+			}
+			log.Print(nbr)
+		}
 		nbr = int(math.Log2(float64(nbr)))
-        fmt.Print(alph[nbr])
+		fmt.Print(alph[nbr])
 	}
 }
