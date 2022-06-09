@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+        "fmt"
+        "runtime"
+    )
 
 func square(c chan int) {
 	fmt.Println("[square] reading")
@@ -22,9 +25,10 @@ func main() {
 
 	go square(squareChan)
 	go cube(cubeChan)
-
+    
+    fmt.Println("active goroutines", runtime.NumGoroutine())
 	testNum := 3
-
+    
 	fmt.Println("[main] sent testNum to squareChan")
 	squareChan <- testNum
 	fmt.Println("[main] resuming")
